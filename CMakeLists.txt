@@ -11,9 +11,11 @@ set(device_name "STM32F401xC")
 
 set(c_compile_options
 	# CPU specific
-	"-mcpu=cortex-m4"
-	"-mfloat-abi=soft"
 	"-mthumb"
+	"-march=armv7e-m"
+	"-mcpu=cortex-m4"
+	"-mfloat-abi=hard"
+	"-mfpu=fpv4-sp-d16"
 	# Non-CPU specific
 	"--specs=nano.specs"
 	"-ffunction-sections"
@@ -35,7 +37,7 @@ endif()
 
 set(link_flags
 	"-mcpu=cortex-m4 \
-	-mfloat-abi=soft \
+	-mfloat-abi=hard \
 	-T\"${CMAKE_CURRENT_LIST_DIR}/STM32F401CCUX_FLASH.ld\" \
 	-Wl,-V \
 	-Wl,-Map=\"${PROJECT_NAME}.map\" \
@@ -50,14 +52,14 @@ add_compile_definitions("${compile_definitions}")
 include_directories("CMSIS/Inc/")
 include_directories("Inc/")
 include_directories("Startup/")
-include_directories("FreeRTOS/Inc/")
+include_directories("Inc/pRTOS/")
 
-file (GLOB_RECURSE startup "Startup/*.[s]")
+file(GLOB_RECURSE startup "Startup/*.[s]")
 file(GLOB_RECURSE sources "Src/*.[c]")
 file(GLOB_RECURSE cmsis "CMSIS/Src/*.[c]")
-file(GLOB_RECURSE freertos "FreeRTOS/Src/*.[c]")
+file(GLOB_RECURSE os "Src/pRTOS/*.[c+s]")
 
-add_executable("${PROJECT_NAME}" ${cmsis} ${startup} ${freertos} ${sources})
+add_executable("${PROJECT_NAME}" ${cmsis} ${startup} ${os} ${sources})
 set_target_properties("${PROJECT_NAME}" PROPERTIES LINK_FLAGS "${link_flags}")
 
 # The OBJCOPY utility will separate the EEPROM section from the main program
